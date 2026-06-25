@@ -16,7 +16,7 @@ Clean Architecture pragmática de 3 capas:
 ```
 domain/          → Entidades, casos de uso y repositorios abstractos.
 infrastructure/  → Implementaciones concretas (Supabase, etc.).
-interface/       → Route handlers de Next.js (app/api/).
+app/api/         → Route handlers de Next.js (capa interface).
 ```
 
 ### Reglas de dependencia
@@ -31,13 +31,22 @@ interface/       → Route handlers de Next.js (app/api/).
 npm install
 ```
 
-Crea un archivo `.env.local` a partir de `.env.local.example` y completa las variables de Supabase.
+Crea un archivo `.env.local` a partir de `.env.local.example` y completa las variables de Supabase:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (llave pública del cliente)
+- `SUPABASE_SECRET_KEY` (llave de servidor, equivalente a la antigua service role key)
 
 ```bash
 npm run dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000).
+
+## Endpoints de prueba
+
+- `POST /api/tasks` — Crea una tarea. Body: `{ "title": "string", "description?": "string" }`.
+- `GET /api/tasks` — Lista todas las tareas ordenadas por fecha de creación.
 
 ## Tests
 
