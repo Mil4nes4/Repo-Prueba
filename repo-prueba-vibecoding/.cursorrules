@@ -1,0 +1,26 @@
+# Reglas de contexto — Torneo de Vibecoding PUCP
+
+## Arquitectura
+Stack: Next.js 16 (App Router) + Vercel + Supabase. Clean Architecture pragmática de 3 capas.
+
+## Capas
+- domain/: entidades, casos de uso, repositorios abstractos. Sin dependencias de Next.js ni Supabase.
+- infrastructure/: cliente Supabase, repositorios concretos.
+- interface/ (app/api/): route handlers que reciben requests y delegan a casos de uso.
+
+## Reglas de importación
+- domain/ NO importa de next, react, @supabase/supabase-js, infrastructure/ ni interface/.
+- infrastructure/ puede importar de domain/.
+- interface/ puede importar de domain/ e infrastructure/.
+
+## Convenciones
+- TypeScript estricto.
+- Inyección de dependencias en casos de uso.
+- Validar inputs en el dominio.
+- Tests: happy path + caso de error para cada caso de uso crítico.
+- Marcar deuda técnica con // TECH-DEBT: [razón].
+
+## IA bajo presión
+- Explicar el código propuesto antes de commitear.
+- Commit limpio antes de refactors grandes.
+- No ejecutar vercel --prod sin confirmación humana.

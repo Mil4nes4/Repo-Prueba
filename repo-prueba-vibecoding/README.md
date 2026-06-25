@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# [Nombre del Proyecto]
 
-## Getting Started
+Breve descripción del problema que resuelve y por qué importa.
 
-First, run the development server:
+## Stack
+
+- **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS v4.
+- **Backend:** Next.js API Routes (serverless).
+- **Base de datos y auth:** Supabase.
+- **Hosting:** Vercel.
+
+## Arquitectura
+
+Clean Architecture pragmática de 3 capas:
+
+```
+domain/          → Entidades, casos de uso y repositorios abstractos.
+infrastructure/  → Implementaciones concretas (Supabase, etc.).
+interface/       → Route handlers de Next.js (app/api/).
+```
+
+### Reglas de dependencia
+
+- `domain/` no importa de Next.js, React ni Supabase.
+- `infrastructure/` puede importar de `domain/`.
+- `interface/` puede importar de `domain/` e `infrastructure/`.
+
+## Instalación local
+
+```bash
+npm install
+```
+
+Crea un archivo `.env.local` a partir de `.env.local.example` y completa las variables de Supabase.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test
+```
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
+El proyecto está configurado para desplegarse en Vercel. Los deploys a producción deben ser aprobados por un humano.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura de decisiones
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ver `/docs/adr/`.
 
-## Deploy on Vercel
+## Equipo
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Persona A — Dominio + Backend
+- Persona B — Frontend
+- Persona C — Infraestructura, testing, deploy y documentación
