@@ -56,7 +56,8 @@ npm test
 
 ## Deploy
 
-El proyecto está configurado para desplegarse en Vercel. Los deploys a producción deben ser aprobados por un humano.
+- **Producción:** https://repo-prueba-nzpm.vercel.app
+- El proyecto está configurado para desplegarse en Vercel. Los deploys a producción deben ser aprobados por un humano.
 
 ## Estructura de decisiones
 
