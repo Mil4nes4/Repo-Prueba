@@ -8,7 +8,7 @@ Aceptado
 
 Participamos en un hackathon de 11 horas donde el 70 % de la rúbrica depende de arquitectura y funcionalidad desplegada. Necesitamos:
 
-- Separar la lógica de negocio de los proveedores (base de datos, hosting).
+- Separar la lógica de negocio de los proveedores (base de datos, hosting, auth).
 - Desplegar rápido sin preocuparnos por servidores.
 - Minimizar boilerplate para no caer en sobreingeniería.
 

@@ -4,6 +4,7 @@ import { ToggleTaskCompletion } from "@/domain/use-cases/ToggleTaskCompletion";
 import { DeleteTask } from "@/domain/use-cases/DeleteTask";
 import { SupabaseTaskRepository } from "@/infrastructure/repositories/SupabaseTaskRepository";
 import { createSupabaseServiceClient } from "@/infrastructure/database/supabaseServiceClient";
+import { verifySession } from "@/infrastructure/auth/verifySession";
 
 let repository: SupabaseTaskRepository | null = null;
 
@@ -20,6 +21,11 @@ interface RouteParams {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const { error: authError } = await verifySession(request);
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -58,6 +64,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    const { error: authError } = await verifySession(request);
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 401 });
+    }
+
     const { id } = await params;
     const useCase = new ToggleTaskCompletion(getRepository());
     const task = await useCase.execute({ id });
@@ -70,8 +81,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const { error: authError } = await verifySession(request);
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 401 });
+    }
+
     const { id } = await params;
     const useCase = new DeleteTask(getRepository());
     await useCase.execute({ id });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { CreateTask } from "@/domain/use-cases/CreateTask";
 import { SupabaseTaskRepository } from "@/infrastructure/repositories/SupabaseTaskRepository";
 import { createSupabaseServiceClient } from "@/infrastructure/database/supabaseServiceClient";
+import { verifySession } from "@/infrastructure/auth/verifySession";
 
 let repository: SupabaseTaskRepository | null = null;
 
@@ -14,6 +15,11 @@ function getRepository(): SupabaseTaskRepository {
 
 export async function POST(request: NextRequest) {
   try {
+    const { error: authError } = await verifySession(request);
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 401 });
+    }
+
     const body = await request.json();
 
     if (typeof body.title !== "string") {
@@ -37,8 +43,13 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { error: authError } = await verifySession(request);
+    if (authError) {
+      return NextResponse.json({ error: authError }, { status: 401 });
+    }
+
     const tasks = await getRepository().findAll();
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {

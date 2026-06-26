@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "./components/AuthProvider";
 
 interface Task {
   id: string;
@@ -12,7 +14,18 @@ interface Task {
 
 type Filter = "all" | "pending" | "completed";
 
+function getHeaders(token: string | null) {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export default function Home() {
+  const { user, loading: authLoading, signOut, getToken } = useAuth();
+  const router = useRouter();
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [loading, setLoading] = useState(true);
@@ -41,8 +54,15 @@ export default function Home() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/tasks");
+      const token = getToken();
+      const res = await fetch("/api/tasks", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!res.ok) {
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
         throw new Error("Error al cargar las tareas");
       }
       const data = await res.json();
@@ -55,8 +75,14 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (!authLoading && !user) {
+      router.push("/login");
+      return;
+    }
+    if (!authLoading && user) {
+      fetchTasks();
+    }
+  }, [authLoading, user, router]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -65,9 +91,10 @@ export default function Home() {
     try {
       setIsCreating(true);
       setActionError(null);
+      const token = getToken();
       const res = await fetch("/api/tasks", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders(token),
         body: JSON.stringify({
           title: newTitle.trim(),
           description: newDescription.trim() || null,
@@ -92,8 +119,10 @@ export default function Home() {
   async function handleToggle(task: Task) {
     try {
       setActionError(null);
+      const token = getToken();
       const res = await fetch(`/api/tasks/${task.id}`, {
         method: "PATCH",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (!res.ok) {
@@ -127,9 +156,10 @@ export default function Home() {
     try {
       setIsUpdating(true);
       setActionError(null);
+      const token = getToken();
       const res = await fetch(`/api/tasks/${task.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders(token),
         body: JSON.stringify({
           title: editTitle.trim(),
           description: editDescription.trim() || null,
@@ -163,8 +193,10 @@ export default function Home() {
     try {
       setIsDeleting(true);
       setActionError(null);
+      const token = getToken();
       const res = await fetch(`/api/tasks/${id}`, {
         method: "DELETE",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
       if (!res.ok) {
@@ -184,18 +216,44 @@ export default function Home() {
   const completedCount = tasks.filter((t) => t.completed).length;
   const pendingCount = tasks.length - completedCount;
 
+  if (authLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-indigo-400" />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-950 px-4 py-12 text-zinc-100 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-10 text-center">
-          <h1 className="mb-2 text-4xl font-extrabold tracking-tight sm:text-5xl">
-            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              Gestor de Tareas
-            </span>
-          </h1>
-          <p className="text-zinc-400">
-            Organiza tu día con una interfaz limpia y oscura.
-          </p>
+        <div className="mb-10 flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-start">
+          <div className="text-center sm:text-left">
+            <h1 className="mb-2 text-4xl font-extrabold tracking-tight sm:text-5xl">
+              <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                Gestor de Tareas
+              </span>
+            </h1>
+            <p className="text-zinc-400">
+              Organiza tu día con una interfaz limpia y oscura.
+            </p>
+          </div>
+          {user && (
+            <div className="flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-2">
+              <div className="text-right">
+                <p className="text-sm font-medium text-zinc-200">
+                  {user.email}
+                </p>
+                <p className="text-xs text-zinc-500">Sesión activa</p>
+              </div>
+              <button
+                onClick={signOut}
+                className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-300 transition hover:bg-zinc-700 hover:text-zinc-100"
+              >
+                Salir
+              </button>
+            </div>
+          )}
         </div>
 
         <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl backdrop-blur-sm">

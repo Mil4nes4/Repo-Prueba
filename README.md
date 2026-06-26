@@ -45,11 +45,22 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 ## Endpoints de prueba
 
+### Autenticación
+
+- `POST /api/auth/signup` — Registro. Body: `{ "email": "string", "password": "string" }`.
+- `POST /api/auth/signin` — Inicio de sesión. Body: `{ "email": "string", "password": "string" }`.
+- `POST /api/auth/signout` — Cierre de sesión. Header: `Authorization: Bearer <token>`.
+- `GET /api/auth/me` — Usuario actual. Header: `Authorization: Bearer <token>`.
+
+### Tareas
+
 - `GET /api/tasks` — Lista todas las tareas ordenadas por fecha de creación descendente.
 - `POST /api/tasks` — Crea una tarea. Body: `{ "title": "string", "description?": "string" }`.
 - `PUT /api/tasks/[id]` — Actualiza título y/o descripción. Body: `{ "title?": "string", "description?": "string | null" }`.
 - `PATCH /api/tasks/[id]` — Alterna el estado completado/pendiente de una tarea.
 - `DELETE /api/tasks/[id]` — Elimina una tarea.
+
+Todos los endpoints de tareas requieren autenticación mediante el header `Authorization: Bearer <token>`.
 
 ## Tests
 
