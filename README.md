@@ -45,8 +45,11 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 ## Endpoints de prueba
 
+- `GET /api/tasks` — Lista todas las tareas ordenadas por fecha de creación descendente.
 - `POST /api/tasks` — Crea una tarea. Body: `{ "title": "string", "description?": "string" }`.
-- `GET /api/tasks` — Lista todas las tareas ordenadas por fecha de creación.
+- `PUT /api/tasks/[id]` — Actualiza título y/o descripción. Body: `{ "title?": "string", "description?": "string | null" }`.
+- `PATCH /api/tasks/[id]` — Alterna el estado completado/pendiente de una tarea.
+- `DELETE /api/tasks/[id]` — Elimina una tarea.
 
 ## Tests
 

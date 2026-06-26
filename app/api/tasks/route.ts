@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreateTask } from "@/domain/use-cases/CreateTask";
 import { SupabaseTaskRepository } from "@/infrastructure/repositories/SupabaseTaskRepository";
-import { createSupabaseClient } from "@/infrastructure/database/supabaseClient";
+import { createSupabaseServiceClient } from "@/infrastructure/database/supabaseServiceClient";
 
 let repository: SupabaseTaskRepository | null = null;
 
 function getRepository(): SupabaseTaskRepository {
   if (!repository) {
-    repository = new SupabaseTaskRepository(createSupabaseClient());
+    repository = new SupabaseTaskRepository(createSupabaseServiceClient());
   }
   return repository;
 }

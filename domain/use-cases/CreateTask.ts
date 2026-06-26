@@ -1,4 +1,4 @@
-import { Task, TaskEntity } from "@/domain/entities/Task";
+import { TaskEntity } from "@/domain/entities/Task";
 import { TaskRepository } from "@/domain/repositories/TaskRepository";
 
 export interface CreateTaskInput {
@@ -9,7 +9,7 @@ export interface CreateTaskInput {
 export class CreateTask {
   constructor(private readonly taskRepository: TaskRepository) {}
 
-  async execute(input: CreateTaskInput): Promise<Task> {
+  async execute(input: CreateTaskInput): Promise<TaskEntity> {
     const task = TaskEntity.create(input);
     return this.taskRepository.save(task);
   }

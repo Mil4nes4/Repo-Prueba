@@ -44,4 +44,37 @@ export class TaskEntity implements Task {
       this.createdAt
     );
   }
+
+  toggleCompletion(): TaskEntity {
+    return new TaskEntity(
+      this.id,
+      this.title,
+      this.description,
+      !this.completed,
+      this.createdAt
+    );
+  }
+
+  update(props: { title?: string; description?: string | null }): TaskEntity {
+    const newTitle = props.title !== undefined ? props.title.trim() : this.title;
+
+    if (newTitle.length === 0) {
+      throw new Error("Task title cannot be empty");
+    }
+
+    if (newTitle.length > 200) {
+      throw new Error("Task title cannot exceed 200 characters");
+    }
+
+    const newDescription =
+      props.description !== undefined ? props.description : this.description;
+
+    return new TaskEntity(
+      this.id,
+      newTitle,
+      newDescription,
+      this.completed,
+      this.createdAt
+    );
+  }
 }

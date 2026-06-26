@@ -1,4 +1,4 @@
-import { CreateTask } from "@/domain/use-cases/CreateTask";
+import { ToggleTaskCompletion } from "@/domain/use-cases/ToggleTaskCompletion";
 import { TaskRepository } from "@/domain/repositories/TaskRepository";
 import { TaskEntity } from "@/domain/entities/Task";
 
@@ -35,37 +35,37 @@ class InMemoryTaskRepository implements TaskRepository {
   }
 }
 
-describe("CreateTask use case", () => {
+describe("ToggleTaskCompletion use case", () => {
   let repository: InMemoryTaskRepository;
-  let createTask: CreateTask;
+  let toggleCompletion: ToggleTaskCompletion;
 
   beforeEach(() => {
     repository = new InMemoryTaskRepository();
-    createTask = new CreateTask(repository);
+    toggleCompletion = new ToggleTaskCompletion(repository);
   });
 
-  it("should create a task with a trimmed title (happy path)", async () => {
-    const result = await createTask.execute({
-      title: "  Learn Clean Architecture  ",
-      description: "Practice before the hackathon",
-    });
+  it("should mark a pending task as completed", async () => {
+    const task = TaskEntity.create({ title: "Task to complete" });
+    await repository.save(task);
 
-    expect(result.title).toBe("Learn Clean Architecture");
-    expect(result.description).toBe("Practice before the hackathon");
+    const result = await toggleCompletion.execute({ id: task.id });
+
+    expect(result.completed).toBe(true);
+  });
+
+  it("should unmark a completed task as pending", async () => {
+    const task = TaskEntity.create({ title: "Task to uncomplete" });
+    await repository.save(task);
+    await repository.update(task.markAsCompleted());
+
+    const result = await toggleCompletion.execute({ id: task.id });
+
     expect(result.completed).toBe(false);
-    expect(result.createdAt).toBeInstanceOf(Date);
   });
 
-  it("should throw when the title is empty", async () => {
-    await expect(createTask.execute({ title: "   " })).rejects.toThrow(
-      "Task title cannot be empty"
-    );
-  });
-
-  it("should throw when the title exceeds 200 characters", async () => {
-    const longTitle = "a".repeat(201);
-    await expect(createTask.execute({ title: longTitle })).rejects.toThrow(
-      "Task title cannot exceed 200 characters"
-    );
+  it("should throw when task is not found", async () => {
+    await expect(
+      toggleCompletion.execute({ id: "non-existent-id" })
+    ).rejects.toThrow("Task not found");
   });
 });

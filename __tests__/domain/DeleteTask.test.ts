@@ -1,4 +1,4 @@
-import { CreateTask } from "@/domain/use-cases/CreateTask";
+import { DeleteTask } from "@/domain/use-cases/DeleteTask";
 import { TaskRepository } from "@/domain/repositories/TaskRepository";
 import { TaskEntity } from "@/domain/entities/Task";
 
@@ -35,37 +35,28 @@ class InMemoryTaskRepository implements TaskRepository {
   }
 }
 
-describe("CreateTask use case", () => {
+describe("DeleteTask use case", () => {
   let repository: InMemoryTaskRepository;
-  let createTask: CreateTask;
+  let deleteTask: DeleteTask;
 
   beforeEach(() => {
     repository = new InMemoryTaskRepository();
-    createTask = new CreateTask(repository);
+    deleteTask = new DeleteTask(repository);
   });
 
-  it("should create a task with a trimmed title (happy path)", async () => {
-    const result = await createTask.execute({
-      title: "  Learn Clean Architecture  ",
-      description: "Practice before the hackathon",
-    });
+  it("should delete an existing task", async () => {
+    const task = TaskEntity.create({ title: "Task to delete" });
+    await repository.save(task);
 
-    expect(result.title).toBe("Learn Clean Architecture");
-    expect(result.description).toBe("Practice before the hackathon");
-    expect(result.completed).toBe(false);
-    expect(result.createdAt).toBeInstanceOf(Date);
+    await deleteTask.execute({ id: task.id });
+
+    const remaining = await repository.findById(task.id);
+    expect(remaining).toBeNull();
   });
 
-  it("should throw when the title is empty", async () => {
-    await expect(createTask.execute({ title: "   " })).rejects.toThrow(
-      "Task title cannot be empty"
-    );
-  });
-
-  it("should throw when the title exceeds 200 characters", async () => {
-    const longTitle = "a".repeat(201);
-    await expect(createTask.execute({ title: longTitle })).rejects.toThrow(
-      "Task title cannot exceed 200 characters"
-    );
+  it("should throw when task is not found", async () => {
+    await expect(
+      deleteTask.execute({ id: "non-existent-id" })
+    ).rejects.toThrow("Task not found");
   });
 });
